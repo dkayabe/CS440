@@ -16,12 +16,12 @@ let rec tree_fold (t: 'a tree) (u: 'b) (f: 'a -> 'b -> 'b -> 'b) =
 
 (*>* Problem 2.1 *>*)
 let tree_map (t: 'a tree) (f: 'a -> 'b) : 'b tree =
-  raise ImplementMe
+  let f x l r = Node(f x, l, r) in tree_fold t Leaf f
 
 (*>* Problem 2.2 *>*)
 let inorder (t: 'a tree) : 'a list =
-  raise ImplementMe
+  let f x l r = l @ [x] @ r in tree_fold t [] f
 
 (*>* Problem 2.3 *>*)
 let preorder (t: 'a tree) : 'a list =
-  raise ImplementMe                                               
+  let f x l r = [x] @ l @ r in tree_fold t [] f                                               
