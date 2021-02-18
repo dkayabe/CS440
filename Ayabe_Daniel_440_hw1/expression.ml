@@ -272,16 +272,33 @@ let rec fold_expr (e : expression)
 
 (*>* Problem 3.2 *>*)
 let rec contains_var (e:expression) : bool =
-  raise ImplementMe
+  match e with
+  | Num _ -> false
+  | Var -> true
+  | Binop (_, e1, e2) -> contains_var e1 || contains_var e2
+  | Neg _ -> false
 ;;
+
 
 (*>* Problem 3.3 *>*)
 
 let rec evaluate (e:expression) (x:float) : float =
-  raise ImplementMe
+  match e with
+  |Num f -> f
+  |Var -> x
+  |Binop (o, e1, e2) -> (match o with
+    |Add -> (evaluate e1 x) +. (evaluate e2 x)
+    |Sub -> (evaluate e1 x) -. (evaluate e2 x)
+    |Mul -> (evaluate e1 x) *. (evaluate e2 x)
+    |Pow -> (evaluate e1 x) ** (evaluate e2 x))
+  |Neg e1 -> (evaluate e1 x)*.(-1.0)
 ;;
 
 (* Your answer to problems 3.4 and 3.5 go here *)
+(**
+3.4: I spent a couple hours on this assignment
+3.5: I didn't collaborate with anyone.
+*)
 
 (*>* Problem 3.6 *>*)
 
