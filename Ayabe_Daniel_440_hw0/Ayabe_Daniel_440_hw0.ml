@@ -13,7 +13,7 @@ exception ImplementMe
 let rec stutter (n: int) (x: 'a) : 'a list =
   (* Remove the line "raise ImplementMe" and write your code for Task 4.1
    * here. Do not change the signature above. *)
-  x = if (n <= 0) then [] else (x::(stutter (n - 1) x));;
+  if (n <= 0) then [] else (x::(stutter (n - 1) x));;
 
 (* A couple example unit tests. Write these for each function you implement.
  * Uncomment them once you've implemented stutter. *)
@@ -61,8 +61,8 @@ let parens (l: char list) : bool =
       else parens1 x l2
       in parens1 l []
 ;;
-assert (parens (']') = false);;
-assert (parens [')('] = false);;
+assert (parens [')'] = false);;
+assert (parens ['('] = false);;
 
 (*>* Task 4.5 *>*)
 
