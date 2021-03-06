@@ -60,21 +60,47 @@ let string_of_states states =
  * reachable with one epsilon-transition. *)
 let transitions (trans_list : (state * symbol option * state) list)
       (symb: symbol option) (state: state) : state list =
-  raise ImplementMe
+  let rec transitions' l symb st statel =
+    match l with
+    | (st1, cur_symb, st2)::t when (cur_symb = symb) && (st1 = st) -> transitions' t symb st (st2::statel)
+    | _::t -> transitions' t symb st statel
+    | [] -> statel in
+  transitions' trans_list symb state [];;
 
 (*>* Problem 3.2 *>*)
 
 (* Returns the list of states accessible by (possibly multiple) epsilon
  * transitions from "states" *)
 let rec eps_clos (nfa: nfa) (states: state list) : state list =
-  raise ImplementMe
+  let rec dfs (states: state list) (visited:state list) = match states with
+    | current::x when ((norm (current::visited)) = visited) -> dfs x visited
+    | current::x -> let routes = transitions nfa.trans None current in
+        let routes1 = dfs (norm routes) (current::visited) in
+          dfs x (norm routes1)
+    | [] -> visited in
+  norm (dfs states []);;
 
 (*>* Problem 3.3 *>*)
 
 (* Returns true if nfa accepts input: "states" is the list of states we
  * might be in currently *)
 let rec nfa_sim (nfa: nfa) (states: state list) (input: symbol list) : bool =
-  let states' = eps_clos nfa states
+  let rec list_contains l elem = match l with
+    | x::y when (x = elem) -> true
+    | _::y -> list_contains y elem
+    | [] -> false
+  in let rec states' = eps_clos nfa states
+  in let rec check_states states accepting_states = match states with
+    | st::y when (list_contains accepting_states st) -> true
+    | st::y -> check_states y accepting_states
+    | [] -> false
+  in let rec all_transitions symb states l = match states with
+    | st1::t_ -> let routes = transitions nfa.trans (Some symb) st1 in
+            all_transitions symb t_ (routes@l)
+    | [] -> l
   in
-  raise ImplementMe
+    match input with
+    | symb::y -> let new_states = all_transitions symb states' [] in
+              nfa_sim nfa new_states y
+    | [] -> (check_states states' nfa.accept)
 ;;

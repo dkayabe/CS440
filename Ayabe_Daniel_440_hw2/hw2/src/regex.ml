@@ -62,7 +62,9 @@ let concat_nfas n1 n2 =
 (*>* Problem 3.4 *>*)
 
 let symb_nfa (s: symbol option) =
-  raise ImplementMe
+  match s with
+  | Some c -> {states = 2; accept = [1]; alpha=[c]; trans=[(0, Some c, 1)]}
+  | None -> {states = 2; accept = [1]; alpha=[]; trans=[(0, None, 1)]};;
 
 let star_nfa n =
   {states = n.states + 2;

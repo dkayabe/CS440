@@ -39,7 +39,13 @@ exception IllformedInput of string
  * symbol aren't found in the transition list *)
 let rec transition (trans_list : (state * symbol * state) list)
           (symb : symbol) (state: state) : state =
-  raise ImplementMe
+  match trans_list with 
+  | (s1, symb1, s2)::x when (s1 = state) && (symb = symb1) -> s2  
+  | _::x -> transition x symb state 
+  | [] -> raise (IllformedInput
+    (Printf.sprintf
+    "State, symbol pair (%d, %c) not in transitions"
+    state symb));;
 
 (*>* Problem 2.2 *>*)
 
@@ -47,6 +53,14 @@ let rec transition (trans_list : (state * symbol * state) list)
  * Raises IllformedInput with an informative message if a symbol in the
  * input isn't in the alphabet. *)
 let rec dfa_sim (dfa: dfa) (state: state) (input: symbol list) : bool =
-  raise ImplementMe
+  let rec list_contains l elem = match l with 
+    | x::y when (x = elem) -> true
+    | _::y -> list_contains y elem
+    | [] -> false in
+      match input with 
+      | sym::y -> let new_state = transition dfa.trans sym state in
+          dfa_sim dfa new_state y
+      | [] when (list_contains dfa.accept state) -> true
+      | [] -> false;;
 
 
