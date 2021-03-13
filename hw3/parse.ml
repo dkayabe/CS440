@@ -135,10 +135,18 @@ let is_op (t: token) : bool =
 
 (*>* Problem 2.6 *>*)
 let is_const (t: token) : bool =
-  raise ImplementMe
+  match t with
+  | TRUE -> true
+  | FALSE -> true
+  | NUM n -> true
+  | _ -> false 
        
 let is_first_val (t: token) : bool =
-  raise ImplementMe
+  match t with
+  | tok when (is_const tok) -> true
+  | tok when (is_op tok)-> true
+  | tok when (tok = FUN)-> true
+  | tok -> false
 
 let parse_const (tokens : tl list) : const * tl list =
   match tokens with
@@ -150,7 +158,10 @@ let parse_const (tokens : tl list) : const * tl list =
 
 (*>* Problem 2.7 *>*)
 let parse_var (tokens : tl list) : var * tl list =
-  raise ImplementMe
+  match tokens with 
+  | [] -> raise (SyntaxError (None, "expected variable"))
+  | (VAR s,_)::t -> (s, t)
+  | (_, l)::t -> raise (SyntaxError (Some l, "expected variable"))
 
 let parse_op (tokens : tl list) : op * tl list =
   let op_of_token (t, l) =
@@ -163,7 +174,10 @@ let parse_op (tokens : tl list) : op * tl list =
 
 (*>* Problem 2.8 *>*)
 let parse_exact (t: token) (tokens: tl list) : tl list =
-  raise ImplementMe
+  match tokens with
+  | [] -> raise (SyntaxError (None, "token espected"))
+  | (tok, l)::t1 when (t = tok) -> t1
+  | (_, l)::t -> raise (SyntaxError (Some l, "token expected"))
 
 (*>* Problem 2.9 *>*)
 let rec parse_value (tokens : tl list) : value * tl list =
@@ -180,7 +194,28 @@ let rec parse_value (tokens : tl list) : value * tl list =
      )
 
 and parse_exp (tokens : tl list) : exp * tl list =
-  raise ImplementMe
+  match tokens with
+  | [] -> raise (SyntaxError (None, "expected exp"))
+  | (LET, _)::t -> (let (v, t) = parse_var t in
+                    let t = parse_exact EQUAL t in 
+                    let (err1, t) = parse_exp t in 
+                    let t = parse_exact IN t in 
+                    let (err2, t) = parse_exp t in
+                      (Let (v, err1, err2), t))
+  | (IF, _ )::t -> (let (err1, t)= parse_exp t in 
+                    let t = parse_exact THEN t in
+                    let (err2, t) = parse_exp t in
+                    let t = parse_exact ELSE t in                     
+                    let (err3, t) = parse_exp t in
+                    (If (err1, err2, err3), t))
+  | (APP, _)::t -> (let (err1, t)= parse_exp t in 
+                    let t = parse_exact TO t in
+                    let (err2, t) = parse_exp t in
+                    (App (err1, err2), t))
+  | (tok, l)::t when (is_first_val tok) ->   (let (a, b) = parse_value ((tok, l)::t) in
+                                              (Value a, b))
+  | (tok, l)::t -> (let (a, b) = parse_var ((tok, l)::t)
+                          in (Var a, b))
 
 let rec explode n s =
   if n >= String.length s then
