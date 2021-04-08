@@ -46,12 +46,19 @@ optcap:
 /* Please do not change the commments for autograder */
 /*<* Problem 1.2a *<*/ 
 /* Grammar rules for "panels" goes here */
-
+panels:
+	panel									{ [ (tabcell None $1) ] }
+|	panel panels							{ (tabcell None $1):: $2 }
 /*>* Problem 1.2a *>*/ 
 
 /*<* Problem 1.2b *<*/ 
 /* Grammar rules for "panel" goes here */
-
+panel:
+	LPAREN IDENT CAPTION ABOVE caption RPAREN			{ table_one_col [tabcell None $5; tabcell (Some $2) nocontent] }
+|	LPAREN IDENT CAPTION BELOW caption RPAREN			{ table_one_col [tabcell (Some $2) nocontent ; tabcell None $5] }
+|	LPAREN IDENT CAPTION RIGHT caption RPAREN			{ table_one_row [tabcell (Some $2) nocontent ; tabcell None $5] }
+|	LPAREN IDENT CAPTION LEFT caption RPAREN			{ table_one_row [tabcell None $5; tabcell (Some $2) nocontent]}
+|	LPAREN IDENT CAPTION OVER caption RPAREN			{ table_one_row [tabcell (Some $2) $5]}
 /*>* Problem 1.2b *>*/ 
 
 optborder:
@@ -76,9 +83,9 @@ optcolor:
 
 /*<* Problem 1.1 *<*/ 
 caption:
-  optsize optborder STRING           { raise ImplementMe }
-| optsize IDENT optborder STRING     { raise ImplementMe }
+  optsize optborder STRING           { div Center None $1 None $2 $3}
+| optsize IDENT optborder STRING     { div Center (Some $2) $1 None $3 $4}
 | optsize IDENT IDENT optborder STRING
-                                     { raise ImplementMe }
+                                     { div Center (Some $2) $1 (Some $3) $4 $5 }
 ;
 /*>* Problem 1.1 *>*/ 
