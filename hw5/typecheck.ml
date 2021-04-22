@@ -4,7 +4,12 @@ open Context
 
 (*<* Problem 2.4 *<*)
 let type_of_const (c: const) : typ =
-  raise Unify.ImplementMe
+   match c with
+   | Num _ -> TInt
+   | String _ -> TString
+   | Bool _ -> TBool
+   | Unit -> TUnit
+   | Nil -> TList (new_type ())
 
 let type_of_op (o: infixop) : typ * typ * typ =
   match o with

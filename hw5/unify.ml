@@ -46,7 +46,24 @@ let sub_all (sub: substitution) (t: typ) =
  * If they're already equal, return [].
  * If they can't be unified, raise a UnificationFailure. *)
 let rec unify (t1: typ) (t2: typ) : substitution =
-  raise ImplementMe
+  match t1, t2 with
+  | TInt, TInt | TString, TString | TBool, TBool | TUnit, TUnit -> []
+  | TUVar a, TUVar b  when (a=b) -> []
+  | TUVar a, _ -> if (occurs a t2) then 
+                      raise (UnificationFailure
+                     "Error Unifying types")
+                  else [(a, t2)]
+  | _, TUVar b -> if (occurs b t1) then 
+                      raise (UnificationFailure
+                     "Error Unifying types")
+                  else [(b, t1)]
+  | TList a, TList b -> unify a b
+  | TArrow (a1, a2), TArrow (b1, b2) -> let s = (unify a1 b1) in
+                                          (unify (sub_all s a2) (sub_all s b2))
+  | TProd (a1, a2), TProd (b1, b2) -> let s = (unify a1 b1) in
+                                          (unify (sub_all s a2) (sub_all s b2))
+  | _ -> raise (UnificationFailure
+                     "Error Unifying types")
 
 (* Generate a new unification variable *)
 let uvar_ctr = ref (-1)
